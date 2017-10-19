@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html lang="pt-br">
+	<head>
+		<meta charset="UTF-8">
+
+		<title>Multiroom Chat</title>
+		
+		<!-- JQUERY -->
+		<script src="js/jquery-2.2.1.js"></script>
+		
+		<!-- bootstrap - link cdn -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	
+		<!-- estilo -->
+		<link href="css/style.css" rel="stylesheet">
+		
+		<script type="text/javascript">
+		
+			$(document).ready(function(){
+				$("#exibe_chat").click(function(){
+					$("#conversa").show();
+					$("#participantes").hide();
+					ocultaNavbar();
+				});
+				
+				$("#exibe_participantes").click(function(){
+					$("#participantes").show();
+					$("#conversa").hide();
+					ocultaNavbar();
+				});
+			});
+			
+			function ocultaNavbar(){
+				$("#btn_navbar_toggle").attr("class","navbar-toggle collapsed");
+				$("#navbar-collapse-1").attr("class","navbar-collapse collapse");
+				$("#btn_navbar_toggle").attr("aria-expanded","false");
+				$("#navbar-collapse-1").attr("aria-expanded","false");
+			}
+		</script>
+	</head>
+
+	<body>
+	
+	
+		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1" id="btn_navbar_toggle">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="#">Multiroom Chat</a>
+				</div>
+				
+				
+				<div class="collapse navbar-collapse" id="navbar-collapse-1">
+					<ul class="nav navbar-nav">
+						<li>
+							<a href="#" id="exibe_chat">Chat</a>
+						</li>
+						<li>
+							<a href="#" id="exibe_participantes">People</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+	
+		<div class="container">
+            <div class="row conversa" id="conversa">
+				<div class="col-md-1"></div>
+				<div class="col-md-10" id="dialogs">
+					<!--Talk
+					<div class="dialogo">
+						<h4>Jorge</h4>
+						<p>Show de bola, comunicação bi-direcional em páginas ou sistemas web é muito bacana mesmo</p>
+					</div>
+					Talk-->
+				</div>
+				<div class="col-md-1"></div>
+                
+            </div>
+			
+			<div class="row participantes" id="participantes" style="display:none">
+				<div class="col-md-1"></div>
+				<div class="col-md-10" id="people">
+				</div>
+				<div class="col-md-1"></div>
+                
+            </div>
+        </div>
+		
+		<nav class="navbar navbar-default navbar-fixed-bottom" role="navigation">
+			<div class="container">
+				<div class="panel-body campo-mensagem">
+					<div class="col-md-12">
+						<div class="input-group">
+							<input type="text" class="form-control" placeholder="Message" id="message" name="message">
+							<input type="hidden" id="nickName" name="nickName" value="<%= nickName %>"/>
+							<input type="hidden" id="updatedNickName" name="updatedNickName" value="0"/>
+							<span class="input-group-btn">
+								<!--<button class="btn btn-default" type="button" id="sendMessage" name="sendMessage">></button>-->
+
+								<button class="btn btn-default">
+							     	<img src="/images/button.png" width="20" id="sendMessage" name="sendMessage"/>
+								</button>	
+							</span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>		
+		
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+		
+		<!--Socket.IO-->
+		<script src="/socket.io/socket.io.js"></script>
+		
+		<script>
+			
+			/* Create socket instance */
+			var socket = io('http://localhost');
+
+			/* Listen and update people*/
+			socket.on('peopleToClient', function(data){	
+				var html = '';
+					html += "<span class='participante'>";
+					html += "<img src='images/ico_usuario.png'/>&nbsp;";
+					html += data.nickName;
+					html += "</span>";
+				
+				$('#people').append(html);
+			});
+
+			/* Listen and update messages*/
+			socket.on('msgToClient', function(data){	
+				var html = '';
+					html += "<div class='dialogo'>";
+					html += "<h4>" + data.nickName + "</h4>";
+					html += "<p>" + data.message + "</p>";
+					html += "</div>";
+				
+				$('#dialogs').append(html);
+
+				/* Scroll to last message */
+				window.scroll(0, document.body.scrollHeight);
+			});
+
+			$('#sendMessage').click(function(){
+
+				/*Send message and update people control*/
+				socket.emit(
+					'msgToServer', 
+					{
+						nickName: $('#nickName').val(), 
+						message: $('#message').val(),
+						updatedNickName: $('#updatedNickName').val()
+					}
+				);
+
+				/*Update people control */
+				$('#updatedNickName').val('1');
+				/*Clean textbox */
+				$('#message').val('');
+			});
+
+
+		</script>
+		<!--Socket.IO-->
+
+	</body>
+</html>

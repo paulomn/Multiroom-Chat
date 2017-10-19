@@ -1,0 +1,7 @@
+1) Create a new folder (Multiroom-Chat)
+2) Initialize o npm (npm init)
+3) Download Express (MVC Framwork) (npm install express --save)
+4) Download EJS (Views Framework) (npm install ejs --save)
+5) Download Consign (Autoloader) (npm install ejs --save)
+6) Download BodyParser (Body Poster) (npm install bodyparser --save)
+7) Download Express-Validator (Validate Forms) (npm install express-validator --save)
